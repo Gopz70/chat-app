@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Real-Time Chat</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        Gopi's Realtime Chat App 💬
+	<button id="themeToggle" class="theme-toggle">
+           <span class="icon">🌙</span>
+           <span class="label">Dark</span>
+        </button>
+    </div>
+
+    <div id="messages" class="chat-messages"></div>
+
+    <div id="typing" class="typing-indicator"></div>
+
+    <div class="chat-input">
+        <input id="msg" type="text" placeholder="Type a message..." autocomplete="off">
+        <button onclick="sendMsg()">Send</button>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
