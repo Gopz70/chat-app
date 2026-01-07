@@ -5,19 +5,17 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
-# 🔥 IMPORTANT: Force threading mode (Windows fix)
+# Windows-safe + Render-compatible
 socketio = SocketIO(app, async_mode="threading")
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Chat messages
 @socketio.on('message')
 def handle_message(msg):
     send(msg, broadcast=True)
 
-# Typing indicator
 @socketio.on('typing')
 def handle_typing(user):
     emit('typing', user, broadcast=True, include_self=False)
@@ -27,6 +25,10 @@ def handle_stop_typing(user):
     emit('stop_typing', broadcast=True, include_self=False)
 
 if __name__ == '__main__':
-    # Local → 5000 | Render → uses PORT automatically
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="127.0.0.1", port=port, debug=True)
+    port = int(os.environ.get("PORT", 10000))
+    socketio.run(
+        app,
+        host="0.0.0.0",
+        port=port,
+        allow_unsafe_werkzeug=True
+    )
