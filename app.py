@@ -4,7 +4,9 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+
+# 🔥 IMPORTANT: Force threading mode (Windows fix)
+socketio = SocketIO(app, async_mode="threading")
 
 @app.route('/')
 def index():
@@ -24,9 +26,7 @@ def handle_typing(user):
 def handle_stop_typing(user):
     emit('stop_typing', broadcast=True, include_self=False)
 
-
-
 if __name__ == '__main__':
+    # Local → 5000 | Render → uses PORT automatically
     port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
-
+    socketio.run(app, host="127.0.0.1", port=port, debug=True)
