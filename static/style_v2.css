@@ -137,6 +137,15 @@ body {
     cursor: pointer;
 }
 
+#emojiBtn {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    margin-right: 6px;
+}
+
+
 /* =========================
    THEME TOGGLE
    ========================= */

@@ -1,4 +1,5 @@
 const socket = io();
+
 const messages = document.getElementById("messages");
 const input = document.getElementById("msg");
 const typingDiv = document.getElementById("typing");
@@ -11,7 +12,37 @@ while (!username) {
 
 let typingTimeout;
 
+// =====================
+// Emoji Picker (FIXED)
+// =====================
+
+window.addEventListener("DOMContentLoaded", () => {
+    const emojiBtn = document.getElementById("emojiBtn");
+
+    if (!emojiBtn || typeof EmojiButton === "undefined") {
+        console.error("Emoji picker library not loaded");
+        return;
+    }
+
+    const picker = new EmojiButton({
+        theme: "dark",
+        autoHide: true
+    });
+
+    emojiBtn.addEventListener("click", () => {
+        picker.togglePicker(emojiBtn);
+    });
+
+    picker.on("emoji", (emoji) => {
+        input.value += emoji;
+        input.focus();
+    });
+});
+
+// =====================
 // Send message
+// =====================
+
 function sendMsg() {
     if (input.value.trim() === "") return;
 
@@ -24,7 +55,10 @@ function sendMsg() {
     input.value = "";
 }
 
+// =====================
 // Receive message
+// =====================
+
 socket.on("message", function (data) {
     const div = document.createElement("div");
     div.classList.add("message");
@@ -47,7 +81,10 @@ socket.on("message", function (data) {
     messages.scrollTop = messages.scrollHeight;
 });
 
-// Typing detection
+// =====================
+// Typing indicator
+// =====================
+
 input.addEventListener("input", () => {
     socket.emit("typing", username);
 
@@ -57,22 +94,26 @@ input.addEventListener("input", () => {
     }, 1200);
 });
 
-// Show typing
 socket.on("typing", (user) => {
     typingDiv.innerText = `${user} is typing...`;
 });
 
-// Hide typing
 socket.on("stop_typing", () => {
     typingDiv.innerText = "";
 });
 
+// =====================
 // Enter key
+// =====================
+
 input.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMsg();
 });
 
+// =====================
 // Theme toggle
+// =====================
+
 themeToggle.onclick = () => {
     document.body.classList.toggle("light");
 
