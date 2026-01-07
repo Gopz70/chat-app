@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- ✅ SINGLE, STRONG viewport (VERY IMPORTANT) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-    <!-- ✅ Mobile app behavior -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
     <title>Real-Time Chat</title>
 
-    <!-- ✅ Versioned CSS -->
     <link rel="stylesheet" href="/static/style_v2.css">
-
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
 
 <body>
     <div class="chat-container">
+
         <div class="chat-header">
             Gopi's Realtime Chat App 💬
             <button id="themeToggle" class="theme-toggle">
@@ -29,17 +26,35 @@
         </div>
 
         <div id="messages" class="chat-messages"></div>
-
         <div id="typing" class="typing-indicator"></div>
+
+        <!-- ✅ Emoji Picker FLOATING ABOVE INPUT -->
+        <div id="emojiPicker" class="emoji-picker hidden">
+         <span onclick="insertEmoji('😀')">😀</span>
+         <span onclick="insertEmoji('😃')">😃</span>
+         <span onclick="insertEmoji('😄')">😄</span>
+         <span onclick="insertEmoji('😁')">😁</span>
+         <span onclick="insertEmoji('😆')">😆</span>
+         <span onclick="insertEmoji('😅')">😅</span>
+         <span onclick="insertEmoji('😂')">😂</span>
+         <span onclick="insertEmoji('🤣')">🤣</span>
+         <span onclick="insertEmoji('😊')">😊</span>
+         <span onclick="insertEmoji('😍')">😍</span>
+         <span onclick="insertEmoji('❤️')">❤️</span>
+         <span onclick="insertEmoji('👍')">👍</span>
+         <span onclick="insertEmoji('🔥')">🔥</span>
+         <span onclick="insertEmoji('🎉')">🎉</span>
+        </div>
+
 
         <div class="chat-input">
             <button id="emojiBtn">😊</button>
             <input id="msg" type="text" placeholder="Type a message..." autocomplete="off">
             <button onclick="sendMsg()">Send</button>
         </div>
+
     </div>
 
     <script src="/static/script.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.4/dist/index.min.js"></script>
 </body>
 </html>

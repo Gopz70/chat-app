@@ -4,6 +4,8 @@ const messages = document.getElementById("messages");
 const input = document.getElementById("msg");
 const typingDiv = document.getElementById("typing");
 const themeToggle = document.getElementById("themeToggle");
+const emojiPicker = document.getElementById("emojiPicker");
+const emojiBtn = document.getElementById("emojiBtn");
 
 let username = "";
 while (!username) {
@@ -11,33 +13,6 @@ while (!username) {
 }
 
 let typingTimeout;
-
-// =====================
-// Emoji Picker (FIXED)
-// =====================
-
-window.addEventListener("DOMContentLoaded", () => {
-    const emojiBtn = document.getElementById("emojiBtn");
-
-    if (!emojiBtn || typeof EmojiButton === "undefined") {
-        console.error("Emoji picker library not loaded");
-        return;
-    }
-
-    const picker = new EmojiButton({
-        theme: "dark",
-        autoHide: true
-    });
-
-    emojiBtn.addEventListener("click", () => {
-        picker.togglePicker(emojiBtn);
-    });
-
-    picker.on("emoji", (emoji) => {
-        input.value += emoji;
-        input.focus();
-    });
-});
 
 // =====================
 // Send message
@@ -128,3 +103,17 @@ themeToggle.onclick = () => {
         label.innerText = "Dark";
     }
 };
+
+// =====================
+// Emoji Picker (BULLETPROOF)
+// =====================
+
+emojiBtn.onclick = () => {
+    emojiPicker.classList.toggle("hidden");
+};
+
+function insertEmoji(emoji) {
+    input.value += emoji;
+    input.focus();
+    emojiPicker.classList.add("hidden");
+}

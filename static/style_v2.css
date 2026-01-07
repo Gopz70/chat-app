@@ -5,15 +5,9 @@
     font-family: "Segoe UI", sans-serif;
 }
 
-/* =========================
-   GLOBAL FULL SCREEN LAYOUT
-   ========================= */
-
 html, body {
     width: 100%;
     height: 100%;
-    margin: 0;
-    padding: 0;
 }
 
 body {
@@ -22,10 +16,11 @@ body {
     overflow: hidden;
 }
 
-/* Chat container ALWAYS full screen */
+/* =========================
+   CHAT CONTAINER
+   ========================= */
+
 .chat-container {
-    position: fixed;
-    inset: 0;
     width: 100%;
     height: 100%;
     background: linear-gradient(180deg, #020617, #020617cc);
@@ -41,7 +36,6 @@ body {
     padding: 14px;
     text-align: center;
     font-weight: bold;
-    letter-spacing: 1px;
     background: linear-gradient(90deg, #3b82f6, #ec4899);
 }
 
@@ -55,44 +49,29 @@ body {
     overflow-y: auto;
 }
 
-.chat-messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-    background: linear-gradient(#3b82f6, #ec4899);
-    border-radius: 10px;
-}
-
 .message {
     padding: 10px 14px;
     border-radius: 14px;
     margin-bottom: 10px;
     max-width: 80%;
-    word-wrap: break-word;
-    animation: fadeIn 0.2s ease-in-out;
 }
 
-/* Your message */
 .my-message {
     background: linear-gradient(135deg, #ec4899, #f472b6);
     margin-left: auto;
     color: #020617;
 }
 
-/* Other message */
 .other-message {
     background: linear-gradient(135deg, #3b82f6, #60a5fa);
     margin-right: auto;
     color: #020617;
 }
 
-/* Username */
 .username {
     font-size: 12px;
     font-weight: bold;
     margin-bottom: 4px;
-    opacity: 0.85;
 }
 
 /* =========================
@@ -103,7 +82,6 @@ body {
     font-size: 14px;
     padding: 0 15px 8px;
     color: #94a3b8;
-    font-style: italic;
 }
 
 /* =========================
@@ -112,6 +90,7 @@ body {
 
 .chat-input {
     display: flex;
+    align-items: center;
     padding: 12px;
     border-top: 1px solid #1e293b;
 }
@@ -128,7 +107,7 @@ body {
 }
 
 .chat-input button {
-    margin-left: 10px;
+    margin-left: 8px;
     padding: 12px 18px;
     border-radius: 20px;
     border: none;
@@ -145,6 +124,38 @@ body {
     margin-right: 6px;
 }
 
+/* =========================
+   🔥 EMOJI PICKER (BULLETPROOF)
+   ========================= */
+
+.emoji-picker {
+    position: fixed;            /* 🔥 KEY FIX */
+    bottom: 90px;
+    left: 12px;
+
+    background: #020617;
+    border-radius: 12px;
+    padding: 10px;
+
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+
+    max-width: 240px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+
+    z-index: 999999;            /* 🔥 ABOVE EVERYTHING */
+}
+
+.emoji-picker span {
+    cursor: pointer;
+    font-size: 22px;
+    user-select: none;
+}
+
+.hidden {
+    display: none;
+}
 
 /* =========================
    THEME TOGGLE
@@ -178,13 +189,4 @@ body.light .chat-container {
 body.light .chat-input input {
     background: #f1f5f9;
     color: #020617;
-}
-
-/* =========================
-   ANIMATION
-   ========================= */
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(5px); }
-    to   { opacity: 1; transform: translateY(0); }
 }
