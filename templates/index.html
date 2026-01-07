@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -18,34 +17,39 @@
     <div class="chat-container">
 
         <div class="chat-header">
-            Gopi's Realtime Chat App 💬
+            Gopi's Chat Room 💬
             <button id="themeToggle" class="theme-toggle">
                 <span class="icon">🌙</span>
                 <span class="label">Dark</span>
             </button>
         </div>
 
+        <!-- ✅ ONLINE USERS -->
+        <div class="online-box">
+            <strong>Online</strong>
+            <ul id="onlineUsers"></ul>
+        </div>
+
         <div id="messages" class="chat-messages"></div>
         <div id="typing" class="typing-indicator"></div>
 
-        <!-- ✅ Emoji Picker FLOATING ABOVE INPUT -->
+        <!-- Emoji Picker -->
         <div id="emojiPicker" class="emoji-picker hidden">
-         <span onclick="insertEmoji('😀')">😀</span>
-         <span onclick="insertEmoji('😃')">😃</span>
-         <span onclick="insertEmoji('😄')">😄</span>
-         <span onclick="insertEmoji('😁')">😁</span>
-         <span onclick="insertEmoji('😆')">😆</span>
-         <span onclick="insertEmoji('😅')">😅</span>
-         <span onclick="insertEmoji('😂')">😂</span>
-         <span onclick="insertEmoji('🤣')">🤣</span>
-         <span onclick="insertEmoji('😊')">😊</span>
-         <span onclick="insertEmoji('😍')">😍</span>
-         <span onclick="insertEmoji('❤️')">❤️</span>
-         <span onclick="insertEmoji('👍')">👍</span>
-         <span onclick="insertEmoji('🔥')">🔥</span>
-         <span onclick="insertEmoji('🎉')">🎉</span>
+            <span onclick="insertEmoji('😀')">😀</span>
+            <span onclick="insertEmoji('😃')">😃</span>
+            <span onclick="insertEmoji('😄')">😄</span>
+            <span onclick="insertEmoji('😁')">😁</span>
+            <span onclick="insertEmoji('😆')">😆</span>
+            <span onclick="insertEmoji('😅')">😅</span>
+            <span onclick="insertEmoji('😂')">😂</span>
+            <span onclick="insertEmoji('🤣')">🤣</span>
+            <span onclick="insertEmoji('😊')">😊</span>
+            <span onclick="insertEmoji('😍')">😍</span>
+            <span onclick="insertEmoji('❤️')">❤️</span>
+            <span onclick="insertEmoji('👍')">👍</span>
+            <span onclick="insertEmoji('🔥')">🔥</span>
+            <span onclick="insertEmoji('🎉')">🎉</span>
         </div>
-
 
         <div class="chat-input">
             <button id="emojiBtn">😊</button>

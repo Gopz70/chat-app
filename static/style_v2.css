@@ -190,3 +190,19 @@ body.light .chat-input input {
     background: #f1f5f9;
     color: #020617;
 }
+
+.online-box {
+    padding: 10px 15px;
+    background: rgba(0,0,0,0.25);
+    font-size: 14px;
+}
+
+.online-box ul {
+    list-style: none;
+    margin-top: 6px;
+}
+
+.online-box li {
+    color: #22c55e; /* green */
+    margin-bottom: 2px;
+}

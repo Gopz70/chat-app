@@ -6,11 +6,16 @@ const typingDiv = document.getElementById("typing");
 const themeToggle = document.getElementById("themeToggle");
 const emojiPicker = document.getElementById("emojiPicker");
 const emojiBtn = document.getElementById("emojiBtn");
+const onlineUsersList = document.getElementById("onlineUsers");
 
 let username = "";
 while (!username) {
     username = prompt("Enter your username:");
 }
+
+// 🔥 Notify server that user joined
+socket.emit("join", username);
+
 
 let typingTimeout;
 
@@ -105,7 +110,7 @@ themeToggle.onclick = () => {
 };
 
 // =====================
-// Emoji Picker (BULLETPROOF)
+// Emoji Picker
 // =====================
 
 emojiBtn.onclick = () => {
@@ -117,3 +122,17 @@ function insertEmoji(emoji) {
     input.focus();
     emojiPicker.classList.add("hidden");
 }
+
+// =====================
+// Online Users Indicator
+// =====================
+
+socket.on("online_users", (users) => {
+    onlineUsersList.innerHTML = "";
+
+    users.forEach(user => {
+        const li = document.createElement("li");
+        li.innerText = user === username ? `${user} (You)` : user;
+        onlineUsersList.appendChild(li);
+    });
+});
