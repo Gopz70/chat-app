@@ -2,36 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta charset="UTF-8">
+
+    <!-- ✅ SINGLE, STRONG viewport (VERY IMPORTANT) -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- ✅ Mobile app behavior -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+
     <title>Real-Time Chat</title>
+
+    <!-- ✅ Versioned CSS -->
     <link rel="stylesheet" href="/static/style_v2.css">
+
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
 </head>
+
 <body>
+    <div class="chat-container">
+        <div class="chat-header">
+            Gopi's Realtime Chat App 💬
+            <button id="themeToggle" class="theme-toggle">
+                <span class="icon">🌙</span>
+                <span class="label">Dark</span>
+            </button>
+        </div>
 
-<div class="chat-container">
-    <div class="chat-header">
-        Gopi's Realtime Chat App 💬
-	<button id="themeToggle" class="theme-toggle">
-           <span class="icon">🌙</span>
-           <span class="label">Dark</span>
-        </button>
+        <div id="messages" class="chat-messages"></div>
+
+        <div id="typing" class="typing-indicator"></div>
+
+        <div class="chat-input">
+            <input id="msg" type="text" placeholder="Type a message..." autocomplete="off">
+            <button onclick="sendMsg()">Send</button>
+        </div>
     </div>
 
-    <div id="messages" class="chat-messages"></div>
-
-    <div id="typing" class="typing-indicator"></div>
-
-    <div class="chat-input">
-        <input id="msg" type="text" placeholder="Type a message..." autocomplete="off">
-        <button onclick="sendMsg()">Send</button>
-    </div>
-</div>
-
-<script src="/static/script.js"></script>
+    <script src="/static/script.js"></script>
 </body>
 </html>
