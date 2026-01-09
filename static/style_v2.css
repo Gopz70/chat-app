@@ -206,3 +206,37 @@ body.light .chat-input input {
     color: #22c55e; /* green */
     margin-bottom: 2px;
 }
+
+.room-info {
+    font-size: 13px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Professional copy button */
+.copy-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.copy-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.copy-btn:active {
+    transform: scale(0.92);
+}
+
+.copy-btn.success {
+    color: #22c55e; /* green */
+}
