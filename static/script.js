@@ -48,15 +48,15 @@ if (choice === "NEW") {
 
 roomCodeText.innerText = roomCode;
 
-// Join room
+// =====================
+// Join room (ONLY ONCE)
+// =====================
+
 socket.emit("join_room", {
     username,
     room_code: roomCode,
     password
 });
-
-// 🔥 Force sync (mobile + desktop fix)
-socket.emit("request_online_users");
 
 // Join error
 socket.on("join_error", (msg) => {
@@ -143,7 +143,7 @@ socket.on("stop_typing", () => {
 });
 
 // =====================
-// Online users (SYNCED)
+// Online users (AUTHORITATIVE)
 // =====================
 
 socket.on("online_users", (users) => {

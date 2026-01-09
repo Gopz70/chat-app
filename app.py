@@ -6,8 +6,8 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, async_mode="threading")
 
-# socket_id -> {username, room}
-users = {}
+# room_code -> { username : sid }
+rooms = {}
 
 # room_code -> password
 room_passwords = {}
@@ -17,7 +17,7 @@ def index():
     return render_template('index.html')
 
 # =====================
-# Join room (with password)
+# Join room
 # =====================
 
 @socketio.on('join_room')
@@ -25,6 +25,7 @@ def handle_join(data):
     username = data['username']
     room = data['room_code']
     password = data['password']
+    sid = request.sid
 
     # Password validation
     if room in room_passwords:
@@ -34,31 +35,27 @@ def handle_join(data):
     else:
         room_passwords[room] = password
 
-    users[request.sid] = {
-        "username": username,
-        "room": room
-    }
+    # Initialize room if needed
+    if room not in rooms:
+        rooms[room] = {}
+
+    # 🔥 Overwrite any previous connection of same user
+    rooms[room][username] = sid
 
     join_room(room)
 
-    # 🔥 Always emit full updated list
-    online = [u["username"] for u in users.values() if u["room"] == room]
-    emit('online_users', online, room=room)
+    emit_online_users(room)
 
 # =====================
-# Request online users (SYNC FIX)
+# Emit online users (authoritative)
 # =====================
 
-@socketio.on('request_online_users')
-def handle_request_online():
-    user = users.get(request.sid)
-    if not user:
+def emit_online_users(room):
+    if room not in rooms:
         return
 
-    room = user["room"]
-    online = [u["username"] for u in users.values() if u["room"] == room]
-
-    emit('online_users', online)
+    online = list(rooms[room].keys())
+    emit('online_users', online, room=room)
 
 # =====================
 # Messages
@@ -66,23 +63,23 @@ def handle_request_online():
 
 @socketio.on('message')
 def handle_message(msg):
-    room = users.get(request.sid, {}).get("room")
+    room = get_user_room(request.sid)
     if room:
         send(msg, room=room)
 
 # =====================
-# Typing indicator
+# Typing
 # =====================
 
 @socketio.on('typing')
 def handle_typing(username):
-    room = users.get(request.sid, {}).get("room")
+    room = get_user_room(request.sid)
     if room:
         emit('typing', username, room=room, include_self=False)
 
 @socketio.on('stop_typing')
 def handle_stop_typing():
-    room = users.get(request.sid, {}).get("room")
+    room = get_user_room(request.sid)
     if room:
         emit('stop_typing', room=room, include_self=False)
 
@@ -92,22 +89,32 @@ def handle_stop_typing():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    user = users.pop(request.sid, None)
-    if not user:
-        return
+    sid = request.sid
 
-    room = user["room"]
-    leave_room(room)
+    for room in list(rooms.keys()):
+        for user, stored_sid in list(rooms[room].items()):
+            if stored_sid == sid:
+                del rooms[room][user]
 
-    # Remove password if room is empty
-    if not any(u["room"] == room for u in users.values()):
-        room_passwords.pop(room, None)
-
-    online = [u["username"] for u in users.values() if u["room"] == room]
-    emit('online_users', online, room=room)
+                if not rooms[room]:
+                    rooms.pop(room)
+                    room_passwords.pop(room, None)
+                else:
+                    emit_online_users(room)
+                return
 
 # =====================
-# Run app
+# Helper: find user room
+# =====================
+
+def get_user_room(sid):
+    for room, users in rooms.items():
+        if sid in users.values():
+            return room
+    return None
+
+# =====================
+# Run
 # =====================
 
 if __name__ == '__main__':
