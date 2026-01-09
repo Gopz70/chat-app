@@ -55,7 +55,10 @@ socket.emit("join_room", {
     password
 });
 
-// Wrong password
+// 🔥 Force sync (mobile + desktop fix)
+socket.emit("request_online_users");
+
+// Join error
 socket.on("join_error", (msg) => {
     alert(msg);
     location.reload();
@@ -77,7 +80,7 @@ copyRoomBtn.onclick = () => {
 let typingTimeout;
 
 // =====================
-// Messaging
+// Send message
 // =====================
 
 function sendMsg() {
@@ -91,6 +94,10 @@ function sendMsg() {
     socket.emit("stop_typing");
     input.value = "";
 }
+
+// =====================
+// Receive message
+// =====================
 
 socket.on("message", (data) => {
     const div = document.createElement("div");
@@ -136,7 +143,7 @@ socket.on("stop_typing", () => {
 });
 
 // =====================
-// Online users
+// Online users (SYNCED)
 // =====================
 
 socket.on("online_users", (users) => {

@@ -17,7 +17,7 @@ def index():
     return render_template('index.html')
 
 # =====================
-# Join room with password
+# Join room (with password)
 # =====================
 
 @socketio.on('join_room')
@@ -26,13 +26,12 @@ def handle_join(data):
     room = data['room_code']
     password = data['password']
 
-    # If room exists, check password
+    # Password validation
     if room in room_passwords:
         if room_passwords[room] != password:
             emit('join_error', 'Invalid room password')
             return
     else:
-        # First user creates the room
         room_passwords[room] = password
 
     users[request.sid] = {
@@ -42,11 +41,24 @@ def handle_join(data):
 
     join_room(room)
 
-    emit(
-        'online_users',
-        [u["username"] for u in users.values() if u["room"] == room],
-        room=room
-    )
+    # 🔥 Always emit full updated list
+    online = [u["username"] for u in users.values() if u["room"] == room]
+    emit('online_users', online, room=room)
+
+# =====================
+# Request online users (SYNC FIX)
+# =====================
+
+@socketio.on('request_online_users')
+def handle_request_online():
+    user = users.get(request.sid)
+    if not user:
+        return
+
+    room = user["room"]
+    online = [u["username"] for u in users.values() if u["room"] == room]
+
+    emit('online_users', online)
 
 # =====================
 # Messages
@@ -81,19 +93,18 @@ def handle_stop_typing():
 @socketio.on('disconnect')
 def handle_disconnect():
     user = users.pop(request.sid, None)
-    if user:
-        room = user["room"]
-        leave_room(room)
+    if not user:
+        return
 
-        # Remove room password if empty
-        if not any(u["room"] == room for u in users.values()):
-            room_passwords.pop(room, None)
+    room = user["room"]
+    leave_room(room)
 
-        emit(
-            'online_users',
-            [u["username"] for u in users.values() if u["room"] == room],
-            room=room
-        )
+    # Remove password if room is empty
+    if not any(u["room"] == room for u in users.values()):
+        room_passwords.pop(room, None)
+
+    online = [u["username"] for u in users.values() if u["room"] == room]
+    emit('online_users', online, room=room)
 
 # =====================
 # Run app
