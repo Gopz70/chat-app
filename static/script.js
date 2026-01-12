@@ -71,7 +71,7 @@ socket.emit("join_room", {
 });
 
 // =====================
-// COPY ROOM CODE (FIXED)
+// COPY ROOM CODE
 // =====================
 
 copyRoomBtn.onclick = () => {
@@ -105,11 +105,8 @@ function sendMsg() {
 
 socket.on("message", (data) => {
     const div = document.createElement("div");
-    div.classList.add("message");
+    div.classList.add("message", data.user === username ? "my-message" : "other-message");
 
-    div.classList.add(data.user === username ? "my-message" : "other-message");
-
-    // Reply bubble
     if (data.reply) {
         const replyDiv = document.createElement("div");
         replyDiv.className = "reply-bubble";
@@ -128,14 +125,9 @@ socket.on("message", (data) => {
     text.innerText = data.text;
     div.appendChild(text);
 
-    // Reply button
     const replyBtn = document.createElement("button");
     replyBtn.innerText = "↩ Reply";
-    replyBtn.style.background = "none";
-    replyBtn.style.border = "none";
-    replyBtn.style.color = "#22c55e";
-    replyBtn.style.cursor = "pointer";
-    replyBtn.style.marginTop = "6px";
+    replyBtn.className = "reply-btn";
 
     replyBtn.onclick = () => {
         replyTo = { user: data.user, text: data.text };
@@ -146,6 +138,19 @@ socket.on("message", (data) => {
     };
 
     div.appendChild(replyBtn);
+
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+});
+
+// =====================
+// SYSTEM MESSAGES (JOIN / LEAVE)
+// =====================
+
+socket.on("system_message", (text) => {
+    const div = document.createElement("div");
+    div.className = "system-message";
+    div.innerText = text;
 
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
@@ -190,7 +195,7 @@ input.addEventListener("keypress", (e) => {
 });
 
 // =====================
-// THEME TOGGLE (FIXED)
+// THEME TOGGLE (FIXED BUG ❗)
 // =====================
 
 themeToggle.onclick = () => {
@@ -209,7 +214,7 @@ themeToggle.onclick = () => {
 };
 
 // =====================
-// EMOJI PICKER (FIXED)
+// EMOJI PICKER
 // =====================
 
 emojiBtn.onclick = () => {
@@ -223,14 +228,26 @@ function insertEmoji(emoji) {
 }
 
 // =====================
-// ONLINE USERS
+// ONLINE USERS (AVATARS)
 // =====================
 
 socket.on("online_users", (users) => {
     onlineUsersList.innerHTML = "";
+
     users.forEach(user => {
         const li = document.createElement("li");
-        li.innerText = user === username ? `${user} (You)` : user;
+        li.className = "online-user";
+
+        const avatar = document.createElement("div");
+        avatar.className = "user-avatar";
+        avatar.innerText = user.charAt(0).toUpperCase();
+
+        const name = document.createElement("span");
+        name.className = "user-name";
+        name.innerText = user === username ? `${user} (You)` : user;
+
+        li.appendChild(avatar);
+        li.appendChild(name);
         onlineUsersList.appendChild(li);
     });
 });

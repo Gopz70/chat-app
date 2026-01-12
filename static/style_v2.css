@@ -184,6 +184,69 @@ body {
 }
 
 /* =========================
+   ONLINE AVATARS
+   ========================= */
+
+.online-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+/* Avatar circle */
+.user-avatar {
+    position: relative;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+
+    background: linear-gradient(135deg, #3b82f6, #ec4899);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: bold;
+    font-size: 14px;
+    color: white;
+}
+
+/* Online dot */
+.user-avatar::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+
+    background: #22c55e;
+    box-shadow: 0 0 8px rgba(34,197,94,0.9);
+    border: 2px solid rgba(2,6,23,0.9);
+}
+
+/* Username text */
+.user-name {
+    font-size: 14px;
+    opacity: 0.9;
+}
+
+/* =========================
+   SYSTEM MESSAGES
+   ========================= */
+
+.system-message {
+    text-align: center;
+    font-size: 13px;
+    margin: 10px 0;
+    opacity: 0.75;
+    font-style: italic;
+}
+
+
+/* =========================
    MESSAGES
    ========================= */
 
@@ -428,4 +491,18 @@ body.light .chat-input input {
     font-size: 11px;
     display: block;
     color: #22c55e;
+}
+
+/* =========================
+   LIGHT MODE INPUT FIX
+   ========================= */
+
+body.light .chat-input input {
+    background: #ffffff;          /* clean white */
+    color: #020617;               /* dark text */
+    border: 1.5px solid #000000;  /* black border */
+}
+
+body.light .chat-input input::placeholder {
+    color: #475569;               /* slightly muted placeholder */
 }

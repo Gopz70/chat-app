@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, send, emit, join_room, leave_room
+from flask_socketio import SocketIO, send, emit, join_room
 import os
 
 app = Flask(__name__)
@@ -27,7 +27,7 @@ def handle_join(data):
     password = data['password']
     sid = request.sid
 
-    # Password validation
+    # Password check
     if room in room_passwords:
         if room_passwords[room] != password:
             emit('join_error', 'Invalid room password')
@@ -35,27 +35,19 @@ def handle_join(data):
     else:
         room_passwords[room] = password
 
-    # Initialize room if needed
     if room not in rooms:
         rooms[room] = {}
 
-    # 🔥 Overwrite any previous connection of same user
     rooms[room][username] = sid
-
     join_room(room)
 
+    emit(
+        'system_message',
+        f"🟢 {username} joined the room",
+        room=room
+    )
+
     emit_online_users(room)
-
-# =====================
-# Emit online users (authoritative)
-# =====================
-
-def emit_online_users(room):
-    if room not in rooms:
-        return
-
-    online = list(rooms[room].keys())
-    emit('online_users', online, room=room)
 
 # =====================
 # Messages
@@ -96,16 +88,25 @@ def handle_disconnect():
             if stored_sid == sid:
                 del rooms[room][user]
 
-                if not rooms[room]:
+                emit(
+                    'system_message',
+                    f"🔴 {user} left the room",
+                    room=room
+                )
+
+                if rooms[room]:
+                    emit_online_users(room)
+                else:
                     rooms.pop(room)
                     room_passwords.pop(room, None)
-                else:
-                    emit_online_users(room)
                 return
 
 # =====================
-# Helper: find user room
+# Helpers
 # =====================
+
+def emit_online_users(room):
+    emit('online_users', list(rooms[room].keys()), room=room)
 
 def get_user_room(sid):
     for room, users in rooms.items():
