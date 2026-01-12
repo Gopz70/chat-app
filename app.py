@@ -4,9 +4,9 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode="threading")
+socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
 
-# room_code -> { username : sid }
+# room_code -> { sid : username }
 rooms = {}
 
 # room_code -> password
@@ -17,7 +17,7 @@ def index():
     return render_template('index.html')
 
 # =====================
-# Join room
+# JOIN ROOM (MOBILE SAFE)
 # =====================
 
 @socketio.on('join_room')
@@ -35,22 +35,25 @@ def handle_join(data):
     else:
         room_passwords[room] = password
 
+    # Init room
     if room not in rooms:
         rooms[room] = {}
 
-    rooms[room][username] = sid
+    # Join
     join_room(room)
 
-    emit(
-        'system_message',
-        f"🟢 {username} joined the room",
-        room=room
-    )
+    # 🔥 REMOVE any old SID with same username (mobile reconnect fix)
+    for old_sid, old_user in list(rooms[room].items()):
+        if old_user == username:
+            del rooms[room][old_sid]
 
+    rooms[room][sid] = username
+
+    emit('system_message', f"🟢 {username} joined the room", room=room)
     emit_online_users(room)
 
 # =====================
-# Messages
+# MESSAGE
 # =====================
 
 @socketio.on('message')
@@ -60,7 +63,7 @@ def handle_message(msg):
         send(msg, room=room)
 
 # =====================
-# Typing
+# TYPING
 # =====================
 
 @socketio.on('typing')
@@ -76,7 +79,7 @@ def handle_stop_typing():
         emit('stop_typing', room=room, include_self=False)
 
 # =====================
-# Disconnect
+# DISCONNECT (MOBILE SAFE)
 # =====================
 
 @socketio.on('disconnect')
@@ -84,38 +87,34 @@ def handle_disconnect():
     sid = request.sid
 
     for room in list(rooms.keys()):
-        for user, stored_sid in list(rooms[room].items()):
-            if stored_sid == sid:
-                del rooms[room][user]
+        if sid in rooms[room]:
+            username = rooms[room].pop(sid)
 
-                emit(
-                    'system_message',
-                    f"🔴 {user} left the room",
-                    room=room
-                )
+            emit('system_message', f"🔴 {username} left the room", room=room)
 
-                if rooms[room]:
-                    emit_online_users(room)
-                else:
-                    rooms.pop(room)
-                    room_passwords.pop(room, None)
-                return
+            if rooms[room]:
+                emit_online_users(room)
+            else:
+                rooms.pop(room)
+                room_passwords.pop(room, None)
+            return
 
 # =====================
-# Helpers
+# HELPERS
 # =====================
 
 def emit_online_users(room):
-    emit('online_users', list(rooms[room].keys()), room=room)
+    users = list(set(rooms[room].values()))
+    emit('online_users', users, room=room)
 
 def get_user_room(sid):
     for room, users in rooms.items():
-        if sid in users.values():
+        if sid in users:
             return room
     return None
 
 # =====================
-# Run
+# RUN
 # =====================
 
 if __name__ == '__main__':
