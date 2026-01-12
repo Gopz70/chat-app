@@ -48,10 +48,7 @@ if (choice === "NEW") {
 
 roomCodeText.innerText = roomCode;
 
-// =====================
-// Join room (ONLY ONCE)
-// =====================
-
+// Join room
 socket.emit("join_room", {
     username,
     room_code: roomCode,
@@ -71,16 +68,13 @@ socket.on("join_error", (msg) => {
 copyRoomBtn.onclick = () => {
     navigator.clipboard.writeText(roomCode);
     copyRoomBtn.classList.add("success");
-
-    setTimeout(() => {
-        copyRoomBtn.classList.remove("success");
-    }, 1200);
+    setTimeout(() => copyRoomBtn.classList.remove("success"), 1200);
 };
 
 let typingTimeout;
 
 // =====================
-// Send message
+// Messaging
 // =====================
 
 function sendMsg() {
@@ -94,10 +88,6 @@ function sendMsg() {
     socket.emit("stop_typing");
     input.value = "";
 }
-
-// =====================
-// Receive message
-// =====================
 
 socket.on("message", (data) => {
     const div = document.createElement("div");
@@ -129,9 +119,7 @@ input.addEventListener("input", () => {
     socket.emit("typing", username);
 
     clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-        socket.emit("stop_typing");
-    }, 1200);
+    typingTimeout = setTimeout(() => socket.emit("stop_typing"), 1200);
 });
 
 socket.on("typing", (user) => {
@@ -143,12 +131,11 @@ socket.on("stop_typing", () => {
 });
 
 // =====================
-// Online users (AUTHORITATIVE)
+// Online users
 // =====================
 
 socket.on("online_users", (users) => {
     onlineUsersList.innerHTML = "";
-
     users.forEach(user => {
         const li = document.createElement("li");
         li.innerText = user === username ? `${user} (You)` : user;
