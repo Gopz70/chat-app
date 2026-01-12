@@ -1,5 +1,9 @@
 const socket = io();
 
+// =====================
+// DOM ELEMENTS
+// =====================
+
 const messages = document.getElementById("messages");
 const input = document.getElementById("msg");
 const typingDiv = document.getElementById("typing");
@@ -10,8 +14,21 @@ const onlineUsersList = document.getElementById("onlineUsers");
 const roomCodeText = document.getElementById("roomCodeText");
 const copyRoomBtn = document.getElementById("copyRoomBtn");
 
+// Reply elements
+const replyPreview = document.getElementById("replyPreview");
+const replyUserEl = document.getElementById("replyUser");
+const replyTextEl = document.getElementById("replyText");
+const cancelReplyBtn = document.getElementById("cancelReply");
+
 // =====================
-// Helpers
+// STATE
+// =====================
+
+let replyTo = null;
+let typingTimeout;
+
+// =====================
+// HELPERS
 // =====================
 
 function generateRoomCode() {
@@ -24,7 +41,7 @@ function generateRoomCode() {
 }
 
 // =====================
-// User input
+// USER + ROOM SETUP
 // =====================
 
 let username = "";
@@ -33,7 +50,6 @@ while (!username) {
 }
 
 let choice = prompt("Type NEW to create a room or JOIN to join a room:").toUpperCase();
-
 let roomCode = "";
 let password = "";
 
@@ -48,21 +64,14 @@ if (choice === "NEW") {
 
 roomCodeText.innerText = roomCode;
 
-// Join room
 socket.emit("join_room", {
     username,
     room_code: roomCode,
     password
 });
 
-// Join error
-socket.on("join_error", (msg) => {
-    alert(msg);
-    location.reload();
-});
-
 // =====================
-// Copy room code
+// COPY ROOM CODE (FIXED)
 // =====================
 
 copyRoomBtn.onclick = () => {
@@ -71,32 +80,44 @@ copyRoomBtn.onclick = () => {
     setTimeout(() => copyRoomBtn.classList.remove("success"), 1200);
 };
 
-let typingTimeout;
-
 // =====================
-// Messaging
+// SEND MESSAGE (WITH REPLY)
 // =====================
 
 function sendMsg() {
-    if (input.value.trim() === "") return;
+    if (!input.value.trim()) return;
 
     socket.send({
         user: username,
-        text: input.value
+        text: input.value,
+        reply: replyTo
     });
 
+    replyTo = null;
+    replyPreview.classList.add("hidden");
     socket.emit("stop_typing");
     input.value = "";
 }
+
+// =====================
+// RECEIVE MESSAGE
+// =====================
 
 socket.on("message", (data) => {
     const div = document.createElement("div");
     div.classList.add("message");
 
-    if (data.user === username) {
-        div.classList.add("my-message");
-    } else {
-        div.classList.add("other-message");
+    div.classList.add(data.user === username ? "my-message" : "other-message");
+
+    // Reply bubble
+    if (data.reply) {
+        const replyDiv = document.createElement("div");
+        replyDiv.className = "reply-bubble";
+        replyDiv.innerHTML = `<strong>${data.reply.user}</strong>${data.reply.text}`;
+        div.appendChild(replyDiv);
+    }
+
+    if (data.user !== username) {
         const name = document.createElement("div");
         name.className = "username";
         name.innerText = data.user;
@@ -107,19 +128,49 @@ socket.on("message", (data) => {
     text.innerText = data.text;
     div.appendChild(text);
 
+    // Reply button
+    const replyBtn = document.createElement("button");
+    replyBtn.innerText = "↩ Reply";
+    replyBtn.style.background = "none";
+    replyBtn.style.border = "none";
+    replyBtn.style.color = "#22c55e";
+    replyBtn.style.cursor = "pointer";
+    replyBtn.style.marginTop = "6px";
+
+    replyBtn.onclick = () => {
+        replyTo = { user: data.user, text: data.text };
+        replyUserEl.innerText = data.user;
+        replyTextEl.innerText = data.text;
+        replyPreview.classList.remove("hidden");
+        input.focus();
+    };
+
+    div.appendChild(replyBtn);
+
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
 });
 
 // =====================
-// Typing indicator
+// CANCEL REPLY
+// =====================
+
+cancelReplyBtn.onclick = () => {
+    replyTo = null;
+    replyPreview.classList.add("hidden");
+};
+
+// =====================
+// TYPING INDICATOR
 // =====================
 
 input.addEventListener("input", () => {
     socket.emit("typing", username);
 
     clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => socket.emit("stop_typing"), 1200);
+    typingTimeout = setTimeout(() => {
+        socket.emit("stop_typing");
+    }, 1200);
 });
 
 socket.on("typing", (user) => {
@@ -131,20 +182,15 @@ socket.on("stop_typing", () => {
 });
 
 // =====================
-// Online users
+// ENTER KEY
 // =====================
 
-socket.on("online_users", (users) => {
-    onlineUsersList.innerHTML = "";
-    users.forEach(user => {
-        const li = document.createElement("li");
-        li.innerText = user === username ? `${user} (You)` : user;
-        onlineUsersList.appendChild(li);
-    });
+input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMsg();
 });
 
 // =====================
-// Theme toggle
+// THEME TOGGLE (FIXED)
 // =====================
 
 themeToggle.onclick = () => {
@@ -163,7 +209,7 @@ themeToggle.onclick = () => {
 };
 
 // =====================
-// Emoji Picker
+// EMOJI PICKER (FIXED)
 // =====================
 
 emojiBtn.onclick = () => {
@@ -175,3 +221,16 @@ function insertEmoji(emoji) {
     input.focus();
     emojiPicker.classList.add("hidden");
 }
+
+// =====================
+// ONLINE USERS
+// =====================
+
+socket.on("online_users", (users) => {
+    onlineUsersList.innerHTML = "";
+    users.forEach(user => {
+        const li = document.createElement("li");
+        li.innerText = user === username ? `${user} (You)` : user;
+        onlineUsersList.appendChild(li);
+    });
+});
