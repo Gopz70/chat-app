@@ -4,7 +4,13 @@ import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, async_mode="threading", cors_allowed_origins="*")
+socketio = SocketIO(
+    app,
+    async_mode="threading",
+    cors_allowed_origins="*",
+    ping_interval=25,
+    ping_timeout=60
+)
 
 # room_code -> { sid : username }
 rooms = {}

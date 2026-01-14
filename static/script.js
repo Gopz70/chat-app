@@ -1,4 +1,10 @@
-const socket = io();
+const socket = io({
+    transports: ["websocket", "polling"],
+    reconnection: true,
+    reconnectionAttempts: 10,
+    reconnectionDelay: 1000
+});
+
 
 // =====================
 // DOM ELEMENTS
